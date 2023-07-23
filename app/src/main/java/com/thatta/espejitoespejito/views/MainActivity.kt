@@ -44,7 +44,7 @@ class MainActivity : AppCompatActivity() {
             if (result.resultCode == RESULT_OK && result.data != null) {
                 // get data and append it to editText
                 val d = result.data!!.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
-                etText.setText(etText.getText() + " " + d[0])
+                binding.tietUserInputMainActivity.setText("%.1f %.2f".format(binding.tietUserInputMainActivity.text, d?.get(0)))
             }
         })
 }

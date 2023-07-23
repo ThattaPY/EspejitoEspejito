@@ -31,3 +31,7 @@ google-services.json
 
 # Android Profiling
 *.hprof
+
+# OpenAI API key
+app/src/main/java/com/thatta/espejitoespejito/SECRET_API_KEY.kt
+app/src/main/java/com/thatta/espejitoespejito/SECRET_API_KEY.kt

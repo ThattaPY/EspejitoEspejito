@@ -1,12 +1,10 @@
 package com.thatta.espejitoespejito.views
 
-import android.content.Intent
 import android.os.Bundle
-import android.speech.RecognizerIntent
-import androidx.activity.result.ActivityResultCallback
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
+import android.widget.EditText
+import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.thatta.espejitoespejito.databinding.ActivityMainBinding
 import com.thatta.espejitoespejito.viewModels.MainActivityViewModel
@@ -16,35 +14,38 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private val viewModel by viewModels<MainActivityViewModel>()
+    private val sharedPreferences by lazy { getSharedPreferences("API_KEY", MODE_PRIVATE) }
 
-    // Languages included
-    val languages = listOf(
-        "English", "Tamil", "Hindi", "Spanish", "French",
-        "Arabic", "Chinese", "Japanese", "German"
-    )
-
-    // Language codes
-    val lCodes = listOf(
-        "en-US", "ta-IN", "hi-IN", "es-CL", "fr-FR",
-        "ar-SA", "zh-TW", "jp-JP", "de-DE"
-    )
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater, null, false)
         setContentView(binding.root)
-        viewModel
+        initObservers()
+        openDialog()
+    }
+
+    private fun initObservers() {
+        viewModel.apiKey.observe(this) {
+            Toast.makeText(this, "Se guardó api key", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun openDialog() {
+        val dialog = AlertDialog.Builder(this)
+        dialog.setTitle("Introduce tu api key de OpenAI")
+        val editText = EditText(this)
+        dialog.setView(editText)
+        dialog.setCancelable(false)
+        dialog.setPositiveButton("OK") { _, _ ->
+            viewModel.apiKey.value = editText.text.toString()
+            sharedPreferences.edit().putString("API_KEY", editText.text.toString()).apply()
+        }
+        dialog.setNegativeButton("Cancelar") { view, _ ->
+            view.dismiss()
+        }
+        dialog.show()
+
 
     }
 
-    // activity result launcher to start intent
-    var activityResultLauncher: ActivityResultLauncher<Intent> = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult(),
-        ActivityResultCallback { result ->
-            // if result is not empty
-            if (result.resultCode == RESULT_OK && result.data != null) {
-                // get data and append it to editText
-                val d = result.data!!.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
-                binding.tietUserInputMainActivity.setText("%.1f %.2f".format(binding.tietUserInputMainActivity.text, d?.get(0)))
-            }
-        })
 }
